@@ -1,16 +1,22 @@
 package com.study.springrestapi.events;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 //Junit4 기준
@@ -31,6 +37,19 @@ public class EventControllerTests {
     MockMvc mockMvc;
 
     /**
+     * 객체를 JSON으로 변환
+     */
+    @Autowired
+    ObjectMapper objectMapper;
+
+    /**
+     * WebMvcTest Annotation의 경우, 슬라이스 Test이기 떄문에 Web용 Bean들만 등록을 해주지 Repository에 해당하는 Bean들은 등록을 해주지 않는다.
+     * 그렇기 때문에 MockBean을 이용해서 Mocking하여 Repository에 해당하는 Bean들을 Mock으로 만들어 달라고 요청한다.
+     */
+    @MockBean
+    EventRepository eventRepository;
+
+    /**
      * Test 할것
      * 입력값들을 전달하면 JSON응답으로 201이 나오는지 확인.
      *      Location 헤더에 생성된 이벤트를 조회할 수 있는 URI 담겨 있는지 확인.
@@ -39,6 +58,28 @@ public class EventControllerTests {
      */
     @Test
     public void createEvent() throws Exception {
+        Event event = Event.builder()
+                .name("Spring")
+                .description("REST API Development with Spring")
+                .closeEnrollmentDateTime(LocalDateTime.of(2021,04,17,12,00))
+                .beginEnrollmentDateTime(LocalDateTime.of(2021,04,18,12,00))
+                .beginEventDateTime(LocalDateTime.of(2021,04,20,12,30))
+                .endEventDateTime(LocalDateTime.of(2021,04,21,12,00))
+                .basePrice(100)
+                .maxPrice(200)
+                .limitOfEnrollment(100)
+                .location("서울 광화문")
+                .build();
+
+
+        event.setId(10);
+        /**
+         * MockBean을 이용해서 객체를 만들게 되면 return되는 값이 전부 null로 들어온다.
+         * eventRepository의 save가 호출되면 event를 return해라.
+         */
+        Mockito.when(eventRepository.save(event)).thenReturn(event);
+
+
         /**
          * perform(post("api/events/")) perform 안에 작성하는 내용은 요청에 해당한다.
          */
@@ -46,12 +87,14 @@ public class EventControllerTests {
                         /**
                          *이 요청에 JSON을 담아서 보내고 있다 의미.
                          */
-                .contentType(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
                         /**
                          *어떠한 응담을 원하는지에 대한 accept
                          * Hypertext Application Language에 해당하는 값을 원한다.
                          */
-                .accept(MediaTypes.HAL_JSON))
+                        .accept(MediaTypes.HAL_JSON)
+                        //objectMapper를 이용해서 JSON으로 변경
+                        .content(objectMapper.writeValueAsString(event)))
                 /**
                  * 실제로 어떤 값들이 찍히는지 확인해 볼 수 있다.
                  */
@@ -60,7 +103,9 @@ public class EventControllerTests {
                  * andExpect는 어떤 결과값을 기대한다는 의미이고
                  * status().isCreated()를 사용하면 좀 더 TypeSafe하다.
                  */
-                .andExpect(status().isCreated());
                 //.andExpect(status().is(201)) 을 이용하면 특정 원하는 결과를 얻고 싶을때 쓰면 된다.
+                .andExpect(status().isCreated())
+                //id가 있는지 확인한다.
+                .andExpect(jsonPath("id").exists());
     }
 }
