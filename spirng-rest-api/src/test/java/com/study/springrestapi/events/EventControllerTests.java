@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,9 +17,12 @@ import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * TDD 방식은 최소 3가지 삼각기법? 을 이용해서 처리를 한다고 한다.
+ * 어떤 기준으로 3가지를 하는건지 알아보자.
+ */
 //Junit4 기준
 @RunWith(SpringRunner.class)
 //web과 관련된 Bean들이 자동으로 설정해준다. 따라서 그냥 가져와서 쓰게 되면 웹과 관련 빈만 등록해준다.(슬라이스 테스트, 조금더 빠르고 구역을 나눠서 작업한다. 단위테스트로 보기는 어렵다. 단위테스트로 하기에는 많은 내용이 주입되어있다.)
@@ -106,6 +110,8 @@ public class EventControllerTests {
                 //.andExpect(status().is(201)) 을 이용하면 특정 원하는 결과를 얻고 싶을때 쓰면 된다.
                 .andExpect(status().isCreated())
                 //id가 있는지 확인한다.
-                .andExpect(jsonPath("id").exists());
+                .andExpect(jsonPath("id").exists())
+                .andExpect(header().exists(HttpHeaders.LOCATION))
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE));
     }
 }
