@@ -1,11 +1,14 @@
 package com.study.springrestapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.regex.Matcher;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -25,8 +29,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 //Junit4 기준
 @RunWith(SpringRunner.class)
-//web과 관련된 Bean들이 자동으로 설정해준다. 따라서 그냥 가져와서 쓰게 되면 웹과 관련 빈만 등록해준다.(슬라이스 테스트, 조금더 빠르고 구역을 나눠서 작업한다. 단위테스트로 보기는 어렵다. 단위테스트로 하기에는 많은 내용이 주입되어있다.)
-@WebMvcTest
+/**
+ * 통합 테스트로 전환, @WebMvcTest를 빼고 아래의 어노테이션을 작성한다.
+ * SpringBootTest 어노테이션을 이용해서 테스트를 진행하면 이제 실제 Repository를 이용해서 Test가 진행이된다.
+ * 테스트에 넣어 준 값들은 무시가 된다.
+ * 통합테스트로 작업을 하게 될 경우 단위테스트로 작업해야하는 Mocking해줘야 하는 값들이 많아져서 테스트 코드를 작성하기 힘들다.
+ * 코드가 바뀔때 마다 테스트가 계속 깨지기 때문이다.
+ * SpringBootTest Annotation을 사용하면 @SpringBootApplication 어노테이션을 찾아서 설정에 따라 모든 Bean들이 등록 되도록 한다.
+ * 이때 , 애플리케이션과 가장 가까운 테스트를 만들어 작성할 수 있다. 슬라이싱 테스트 보다 테스트 작업하는게 더 수월하다.
+  */
+@SpringBootTest
+@AutoConfigureMockMvc
 public class EventControllerTests {
 
     /**
@@ -46,12 +59,6 @@ public class EventControllerTests {
     @Autowired
     ObjectMapper objectMapper;
 
-    /**
-     * WebMvcTest Annotation의 경우, 슬라이스 Test이기 떄문에 Web용 Bean들만 등록을 해주지 Repository에 해당하는 Bean들은 등록을 해주지 않는다.
-     * 그렇기 때문에 MockBean을 이용해서 Mocking하여 Repository에 해당하는 Bean들을 Mock으로 만들어 달라고 요청한다.
-     */
-    @MockBean
-    EventRepository eventRepository;
 
     /**
      * Test 할것
@@ -63,6 +70,7 @@ public class EventControllerTests {
     @Test
     public void createEvent() throws Exception {
         Event event = Event.builder()
+                .id(100)
                 .name("Spring")
                 .description("REST API Development with Spring")
                 .closeEnrollmentDateTime(LocalDateTime.of(2021,04,17,12,00))
@@ -73,17 +81,10 @@ public class EventControllerTests {
                 .maxPrice(200)
                 .limitOfEnrollment(100)
                 .location("서울 광화문")
+                .free(true)
+                .offline(false)
+                .eventStatus(EventStatus.PUBLISHED)
                 .build();
-
-
-        event.setId(10);
-        /**
-         * MockBean을 이용해서 객체를 만들게 되면 return되는 값이 전부 null로 들어온다.
-         * eventRepository의 save가 호출되면 event를 return해라.
-         */
-        Mockito.when(eventRepository.save(event)).thenReturn(event);
-
-
         /**
          * perform(post("api/events/")) perform 안에 작성하는 내용은 요청에 해당한다.
          */
@@ -112,6 +113,9 @@ public class EventControllerTests {
                 //id가 있는지 확인한다.
                 .andExpect(jsonPath("id").exists())
                 .andExpect(header().exists(HttpHeaders.LOCATION))
-                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE));
+                .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonPath("id").value(Matchers.not(100)))
+                .andExpect(jsonPath("free").value(Matchers.not(true)))
+                .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()));
     }
 }

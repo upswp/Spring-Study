@@ -1,5 +1,6 @@
 package com.study.springrestapi.events;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,10 @@ public class EventController {
 
     private final EventRepository eventRepository;
 
-    public EventController(EventRepository eventRepository) {
+    private final ModelMapper modelMapper;
+
+    public EventController(EventRepository eventRepository,ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
         this.eventRepository = eventRepository;
     }
 
@@ -27,7 +31,13 @@ public class EventController {
     /**
      * ResponseEntity를 사용하는 이유 : 응답 코드, 헤더, 본문 모두 다루기 편한 API
      */
-    public ResponseEntity createEvent(@RequestBody Event event){
+    public ResponseEntity createEvent(@RequestBody EventDto eventDto){
+
+        /**
+         * eventDto로 원하는 값들만 정제되어 값을 받고
+         * 받아온 eventDto값을 Event 객체에 ModelMapper를 사용해서 Event 객체로 주입시킨다.
+         */
+        Event event = modelMapper.map(eventDto, Event.class);
         Event newEvent = this.eventRepository.save(event);
         /**
          * create를 만들때는 항상 URI가 필요하다.

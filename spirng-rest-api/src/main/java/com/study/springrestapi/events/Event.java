@@ -52,7 +52,7 @@ public class Event {
     // 모임 유무료 여부
     private boolean free;
     @Enumerated(EnumType.STRING)
-    private EventStatus  eventStatus;
+    private EventStatus  eventStatus = EventStatus.DRAFT;
     /**
      * Enumerated(EnumType.ORDINAL)
      * Enum에 설정되어있는 순서를 통해서 작업한다. 하지만 순서가 변경되면 꼬일 수 있는 문제가 있으므로 STRING을 추천한다.
