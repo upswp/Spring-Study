@@ -1,6 +1,7 @@
 package com.study.springrestapi.events;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.Errors;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -8,11 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.swing.border.EmptyBorder;
+import javax.validation.Valid;
 import java.net.URI;
-
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Controller
 @RequestMapping(value = "/api/events",produces = MediaTypes.HAL_JSON_VALUE)
@@ -31,7 +30,10 @@ public class EventController {
     /**
      * ResponseEntity를 사용하는 이유 : 응답 코드, 헤더, 본문 모두 다루기 편한 API
      */
-    public ResponseEntity createEvent(@RequestBody EventDto eventDto){
+    public ResponseEntity createEvent(@RequestBody @Valid EventDto eventDto , Errors errors){
+        if (errors.hasErrors()){
+            return ResponseEntity.badRequest().build();
+        }
 
         /**
          * eventDto로 원하는 값들만 정제되어 값을 받고
