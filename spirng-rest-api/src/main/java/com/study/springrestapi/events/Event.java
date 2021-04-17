@@ -2,7 +2,9 @@ package com.study.springrestapi.events;
 
 import lombok.*;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
+
 
 @Builder
 @AllArgsConstructor
@@ -26,7 +28,11 @@ import java.time.LocalDateTime;
  * 커스터마이징해서 사용자가 원하는 Annotation을 만들어서 사용할 수 있다.
  * 하지만 Lombok에서는 적용이 안되므로 차후 업데이트가 이뤄지게 된다면 가능하다.
  */
+@Entity
 public class Event {
+
+    @Id
+    @GeneratedValue
     private Integer id;
     private String name;
     private String description;
@@ -45,6 +51,13 @@ public class Event {
     private boolean offline;
     // 모임 유무료 여부
     private boolean free;
+    @Enumerated(EnumType.STRING)
     private EventStatus  eventStatus;
+    /**
+     * Enumerated(EnumType.ORDINAL)
+     * Enum에 설정되어있는 순서를 통해서 작업한다. 하지만 순서가 변경되면 꼬일 수 있는 문제가 있으므로 STRING을 추천한다.
+     * Enumerated(EnumType.STRING)
+     * Enum의 설정되어있는 String 기준으로 가져온다.
+     */
 
 }
