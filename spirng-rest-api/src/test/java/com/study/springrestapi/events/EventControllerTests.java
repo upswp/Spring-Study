@@ -127,11 +127,12 @@ public class EventControllerTests {
                 .andExpect(jsonPath("offline").value(true))
                 .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
                 /**
-                 * 링크 정보를 받는지를 확인하기 위한 Test
+                 * 링크 정보를 받는지를 확인하기 위한 Test (문서화가 진행되면 별도로 Test하지않아도 문서화를 진행하며 Test가 진행된다.)
                  */
                 .andExpect(jsonPath("_links.self").exists())
                 .andExpect(jsonPath("_links.query-events").exists())
                 .andExpect(jsonPath("_links.update-events").exists())
+                .andExpect(jsonPath("_links.profile").exists())
                 /**
                  * REST Docs를 위한 작성
                  */
@@ -140,7 +141,8 @@ public class EventControllerTests {
                         links(
                                 linkWithRel("self").description("link to self"),
                                 linkWithRel("query-events").description("link to query events"),
-                                linkWithRel("update-events").description("link to update an existing event")
+                                linkWithRel("update-events").description("link to update an existing event"),
+                                linkWithRel("profile").description("link to profile")
                         ),
                         //Headers REST Docs 정보 저장
                         requestHeaders(
@@ -183,7 +185,8 @@ public class EventControllerTests {
                                 fieldWithPath("eventStatus").description("event status"),
                                 fieldWithPath("_links.self.href").description("link to self"),
                                 fieldWithPath("_links.query-events.href").description("link to query event list"),
-                                fieldWithPath("_links.update-events.href").description("link to update existing event")
+                                fieldWithPath("_links.update-events.href").description("link to update existing event"),
+                                fieldWithPath("_links.profile.href").description("link to profile")
                         )
                 ));
     }
