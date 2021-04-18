@@ -2,6 +2,7 @@ package com.study.springrestapi.events;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -55,7 +56,11 @@ public class EventController {
          * Location URI 만들기 : HATEOS가 제공하는 linkTo(), methodOn() 사용
          * 객체를 JSON으로 변환 : Object Mapper 사용
          */
-        URI createUri = linkTo(EventController.class).slash(newEvent.getId()).toUri();
-        return ResponseEntity.created(createUri).body(event);
+        WebMvcLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(newEvent.getId());
+        URI createUri = selfLinkBuilder.toUri();
+        EventResource eventResource = new EventResource(event);
+        eventResource.add(linkTo(EventController.class).withRel("query-events"));
+        eventResource.add(selfLinkBuilder.withRel("update-events"));
+        return ResponseEntity.created(createUri).body(eventResource);
     }
 }
