@@ -14,6 +14,7 @@ public class EventValidator {
         if(eventDto.getBasePrice() > eventDto.getMaxPrice() && eventDto.getMaxPrice() != 0){
             errors.rejectValue("basePrice","wrongValue","BasePrice is wrong");
             errors.rejectValue("maxPrice","wrongValue","MaxPrice is wrong");
+            errors.reject("wrongPrices","Values of prices are wrong");
         }
 
          LocalDateTime endEventDateTime = eventDto.getEndEventDateTime();
@@ -24,5 +25,10 @@ public class EventValidator {
         }
         //TODO BeginEventDateTime
         //TODO CloseEnrollmentDateTime
+
+        /**
+         * rejectValue : FieldError
+         * reject : GlobalError (여러개의 값이 조합해서 발생한 에러의 경우 GlobalError로 처리 권장)
+         */
     }
 }
