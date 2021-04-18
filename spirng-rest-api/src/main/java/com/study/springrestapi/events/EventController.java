@@ -48,6 +48,7 @@ public class EventController {
          * 받아온 eventDto값을 Event 객체에 ModelMapper를 사용해서 Event 객체로 주입시킨다.
          */
         Event event = modelMapper.map(eventDto, Event.class);
+        event.update();
         Event newEvent = this.eventRepository.save(event);
         /**
          * create를 만들때는 항상 URI가 필요하다.

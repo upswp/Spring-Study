@@ -30,7 +30,12 @@ import java.time.LocalDateTime;
  */
 @Entity
 public class Event {
-
+    /**
+     * Enumerated(EnumType.ORDINAL)
+     * Enum에 설정되어있는 순서를 통해서 작업한다. 하지만 순서가 변경되면 꼬일 수 있는 문제가 있으므로 STRING을 추천한다.
+     * Enumerated(EnumType.STRING)
+     * Enum의 설정되어있는 String 기준으로 가져온다.
+     */
     @Id
     @GeneratedValue
     private Integer id;
@@ -53,11 +58,21 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus  eventStatus = EventStatus.DRAFT;
-    /**
-     * Enumerated(EnumType.ORDINAL)
-     * Enum에 설정되어있는 순서를 통해서 작업한다. 하지만 순서가 변경되면 꼬일 수 있는 문제가 있으므로 STRING을 추천한다.
-     * Enumerated(EnumType.STRING)
-     * Enum의 설정되어있는 String 기준으로 가져온다.
-     */
+
+    public void update() {
+        // Update free
+        if (this.basePrice == 0 && this.maxPrice == 0) {
+            this.free = true;
+        } else {
+            this.free = false;
+        }
+        // Update offline
+        if (this.location == null || this.location.isBlank()) {
+            this.offline = false;
+        } else {
+            this.offline = true;
+        }
+    }
+
 
 }
