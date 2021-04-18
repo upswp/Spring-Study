@@ -1,97 +1,87 @@
 package com.study.springrestapi.events;
 
 
-import org.junit.jupiter.api.Test;
+import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * 단위 테스트
- */
-class EventTest {
+@RunWith(JUnitParamsRunner.class)
+public class EventTest {
 
     @Test
-    public void builder(){
-        //빌드여부 체크
+    public void builder() {
         Event event = Event.builder()
-                .name("Spring Rest API")
-                .description("REST API development with Srping")
+                .name("Inflearn Spring REST API")
+                .description("REST API development with Spring")
                 .build();
-        //null 값 체크
         assertThat(event).isNotNull();
     }
 
     @Test
-    public void javaBean(){
-        //Given
+    public void javaBean() {
+        // Given
         String name = "Event";
         String description = "Spring";
-        //When
+
+        // When
         Event event = new Event();
         event.setName(name);
         event.setDescription(description);
 
-        //Then
-        //리팩토링 단축키 : alt + ctrl + v - 중복제거
+        // Then
         assertThat(event.getName()).isEqualTo(name);
         assertThat(event.getDescription()).isEqualTo(description);
     }
 
     @Test
-    public void testFree() {
-        //Given
+    @Parameters
+    public void testFree(int basePrice, int maxPrice, boolean isFree) {
+        // Given
         Event event = Event.builder()
-                .basePrice(0)
-                .maxPrice(0)
+                .basePrice(basePrice)
+                .maxPrice(maxPrice)
                 .build();
-        //When
+
+        // When
         event.update();
 
-        //Then
-        assertThat(event.isFree()).isTrue();
+        // Then
+        assertThat(event.isFree()).isEqualTo(isFree);
+    }
 
-        //Given
-        event = Event.builder()
-                .basePrice(100)
-                .maxPrice(0)
-                .build();
-        //When
-        event.update();
-
-        //Then
-        assertThat(event.isFree()).isFalse();
-
-        //Given
-        event = Event.builder()
-                .basePrice(0)
-                .maxPrice(100)
-                .build();
-        //When
-        event.update();
-
-        //Then
-        assertThat(event.isFree()).isFalse();
+    private Object[] parametersForTestFree() {
+        return new Object[] {
+                new Object[] {0, 0, true},
+                new Object[] {100, 0, false},
+                new Object[] {0, 100, false},
+                new Object[] {100, 200, false}
+        };
     }
 
     @Test
-    public void testOffline(){
-        //Given
+    @Parameters
+    public void testOffline(String location, boolean isOffline) {
+        // Given
         Event event = Event.builder()
-                .location("강남역 7번출구")
+                .location(location)
                 .build();
-        //When
+
+        // When
         event.update();
 
-        //Then
-        assertThat(event.isOffline()).isTrue();
-
-        //Given
-        event = Event.builder()
-                .build();
-        //When
-        event.update();
-
-        //Then
-        assertThat(event.isOffline()).isFalse();
+        // Then
+        assertThat(event.isOffline()).isEqualTo(isOffline);
     }
+
+    private Object[] parametersForTestOffline() {
+        return new Object[] {
+                new Object[] {"강남", true},
+                new Object[] {null, false},
+                new Object[] {"       ", false}
+        };
+    }
+
 }
