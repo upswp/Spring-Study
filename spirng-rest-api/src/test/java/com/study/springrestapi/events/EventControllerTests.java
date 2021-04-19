@@ -258,8 +258,9 @@ public class EventControllerTests {
                  * 에러 응답 메세지에 에러에 대한 정보가 있어야 한다.
                  */
                 .andDo(print())
-                .andExpect(jsonPath("$[0].objectName").exists())
-                .andExpect(jsonPath("$[0].defaultMessage").exists())
-                .andExpect(jsonPath("$[0].code").exists());
+                .andExpect(jsonPath("errors[0].objectName").exists())
+                .andExpect(jsonPath("errors[0].field").exists())
+                .andExpect(jsonPath("errors[0].code").exists())
+                .andExpect(jsonPath("_links.index").exists());
     }
 }
