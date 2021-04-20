@@ -1,5 +1,6 @@
 package com.study.springrestapi.events;
 
+import com.study.springrestapi.member.Member;
 import lombok.*;
 
 import javax.persistence.*;
@@ -58,6 +59,8 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus  eventStatus = EventStatus.DRAFT;
+    @ManyToOne
+    private Member manager;
 
     public void update() {
         // Update free
