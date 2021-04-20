@@ -9,7 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.SOURCE)
 public @interface TestDescription {
     String value();
-
     /**
      * Target(ElementType.METHOD) : 붙일 수 있는 타겟, 메서드에 붙일 것이다.
      * Retention(RetentionPolicy.SOURCE) : 이 Annotation이 얼마나 유지가 되게 할것인가.
