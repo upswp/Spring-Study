@@ -1,7 +1,9 @@
 package com.study.springrestapi.configs;
 
+import com.study.springrestapi.common.AppProperties;
 import com.study.springrestapi.member.AccountRole;
 import com.study.springrestapi.member.Member;
+import com.study.springrestapi.member.MemberRepository;
 import com.study.springrestapi.member.MemberService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +35,23 @@ public class AppConfig {
             @Autowired
             MemberService memberService;
 
+            @Autowired
+            AppProperties appProperties;
+
+
             @Override
             public void run(ApplicationArguments args) throws Exception {
-                Member sangwoo = Member.builder()
-                        .email("keesun@email.com")
-                        .password("keesun")
+                Member admin = Member.builder()
+                        .email(appProperties.getAdminUsername())
+                        .password(appProperties.getAdminPassword())
                         .roles(Set.of(AccountRole.ADMIN, AccountRole.USER))
+                        .build();
+                memberService.saveMember(admin);
+
+                Member sangwoo = Member.builder()
+                        .email(appProperties.getUserUsername())
+                        .password(appProperties.getUserPassword())
+                        .roles(Set.of(AccountRole.USER))
                         .build();
                 memberService.saveMember(sangwoo);
             }
